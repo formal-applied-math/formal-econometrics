@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "econometrics"
+version = "0.1.0"
+description = "Lean 4 verification runner for the formal-econometrics identification library"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+lean = ["lean-interact>=0.11.4"]
+all = ["lean-interact>=0.11.4"]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+]
+
+[project.scripts]
+econometrics-verify = "tools.verify.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tools*"]
+namespaces = true
+
+[tool.econometrics]
+# Lean/Mathlib versions are authoritative in `lean-toolchain` + `lakefile.lean`
+# + `lake-manifest.json`; the verifier points at the repo root via
+# econometrics.toml `local_project = "."`.
+
+[tool.econometrics.orchestrator]
+default_timeout = 60.0

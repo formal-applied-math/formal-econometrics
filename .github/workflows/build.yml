@@ -1,0 +1,46 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Build and verify the whole library on the pinned toolchain (lean-toolchain).
+# lean-action installs elan, fetches the Mathlib olean cache, and runs
+# `lake build`; only Econometrics/ builds from source.
+#
+# A green build is *also* the axiom-cleanliness proof: Econometrics/AxiomAudit.lean
+# #guard_msgs-pins every headline theorem to [propext, Classical.choice,
+# Quot.sound], and the GENERATED Econometrics/AxiomAuditGen.lean extends the pin
+# to every proof-position Econometrics constant cited by the benchmark corpus —
+# so `lake build` fails if any of them drifts.
+#
+# No Docker/GHCR image at this size: `lean-action` + the Mathlib cache server is
+# enough for a library with one import closure. Recorded as a deliberate
+# omission in docs/apparatus-divergence.md.
+
+jobs:
+  build:
+    name: python gates + lake build + axiom audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Fail-fast values/honesty gates (stdlib + pytest, seconds): routing +
+      # status declarations + module exposure (test_router), ledger rows
+      # (test_ledger), forbidden text / definitional-rfl tripwire /
+      # generated-audit freshness / values-review cadence (test_values), and
+      # verification-ledger freshness (`ledger status` exits 1 on any stale
+      # entry). These run BEFORE the Lean build on purpose: a push with a stale
+      # ledger claim should go red in seconds, not after a build.
+      - name: Python gates (tests + ledger freshness)
+        run: |
+          pip install --quiet pytest
+          python3 -m pytest tests/ -q
+          python3 -m tools.verify.ledger status
+          python3 -m tools.formalization_yaml --check
+
+      - name: Build (elan + Mathlib cache + lake build)
+        uses: leanprover/lean-action@v1

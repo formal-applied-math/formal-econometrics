@@ -12,17 +12,7 @@ from dataclasses import dataclass
 from .models import Backend, Domain
 
 DEFAULT_ROUTING: dict[Domain, list[Backend]] = {
-    Domain.MARKOV_CHAINS:        [Backend.LEAN],
-    Domain.ERGODIC_THEORY:       [Backend.LEAN],
-    Domain.CLT:                  [Backend.LEAN],
-    Domain.MARTINGALES:          [Backend.LEAN],
-    Domain.STOPPING_TIMES:       [Backend.LEAN],
-    Domain.BROWNIAN_MOTION:      [Backend.LEAN],
-    Domain.MEASURE_THEORY:       [Backend.LEAN],
-    Domain.STOCHASTIC_CALCULUS:  [Backend.LEAN],
-    Domain.SDES:                 [Backend.LEAN],
-    Domain.MATHEMATICAL_FINANCE: [Backend.LEAN],
-    Domain.POISSON_PROCESSES:    [Backend.LEAN],
+    Domain.IDENTIFICATION: [Backend.LEAN],
 }
 
 # Parallel dispatch is a no-op with a single backend; retained so the

@@ -1,0 +1,36 @@
+# Editorial side-car for formalization.yaml (mathlib-initiative v0.3 standard).
+#
+# `tools/formalization_yaml.py` generates the MECHANICAL truth (counts, axioms,
+# sorry=0, the divergence taxonomy, per-domain alignment) from the repo, and
+# merges the EDITORIAL fields below — the ones no tool can honestly derive
+# (source bibliography, chosen headline results, human reviewers). Keep this
+# file truthful and current; the generator will not invent these.
+
+[project]
+name = "formal-econometrics"
+authors = ["Raphael Coelho"]
+license = "Apache-2.0"
+
+# Informal sources the corpus formalizes.
+# `author_contacted` is one of: yes | no | n/a.
+[[sources]]
+id = "standard-causal-inference-literature"
+title = "Standard econometric identification literature (potential outcomes, difference-in-differences)"
+authors = []
+type = "canonical results"
+license = ""
+author_contacted = "n/a"
+prior_work = ""
+
+# Headline results surfaced under status.main_results. The generator emits []
+# until populated, and never guesses.
+[[main_results]]
+declaration = "Econometrics.att_eq_did_contrast"
+file = "Econometrics/Identification/DiD.lean"
+literature = "Difference-in-differences identification: parallel trends implies the ATT equals the DiD contrast of observable conditional means"
+
+[review]
+# Human/agent reviewers of record for the values-review panel.
+reviewers = ["Raphael Coelho"]
+
+acknowledgements = "Built on Mathlib."

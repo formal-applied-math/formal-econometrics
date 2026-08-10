@@ -1,7 +1,7 @@
-"""Generate ``MathFin/AxiomAuditGen.lean`` — the exhaustive axiom audit.
+"""Generate ``Econometrics/AxiomAuditGen.lean`` — the exhaustive axiom audit.
 
-The curated ``MathFin/AxiomAudit.lean`` pins the *headliner* theorems with
-dated, storied sections. This generator closes the complement: every MathFin
+The curated ``Econometrics/AxiomAudit.lean`` pins the *headliner* theorems with
+dated, storied sections. This generator closes the complement: every Econometrics
 constant consumed in PROOF POSITION by any benchmark snippet gets a
 ``#guard_msgs``-pinned ``#print axioms`` check, so no benchmark-cited theorem
 can pick up ``sorryAx`` (a ``sorry``) or a non-standard axiom without
@@ -10,7 +10,7 @@ not exhaustive" stops being true for the benchmark-facing surface.
 
 Scope (documented, deliberate):
 
-* *proof position* means a ``MathFin.*`` constant at the head of a proof term
+* *proof position* means a ``Econometrics.*`` constant at the head of a proof term
   (immediately after ``:=``). Statement-position defs are exercised by
   elaboration + the verification ledger; ``library_wrapper`` entries cite
   upstream (Mathlib / BrownianMotion) names, whose axiom hygiene is
@@ -37,21 +37,21 @@ from pathlib import Path
 
 from tools.verify.corpus import iter_entries
 
-GEN_PATH = Path("MathFin/AxiomAuditGen.lean")
+GEN_PATH = Path("Econometrics/AxiomAuditGen.lean")
 
-# A MathFin constant at the head of a proof term: `:=` (possibly across a
+# A Econometrics constant at the head of a proof term: `:=` (possibly across a
 # newline, possibly behind opening parens) immediately followed by the name.
-# Named arguments inside proofs (`(h := MathFin.foo)`) are still proof
+# Named arguments inside proofs (`(h := Econometrics.foo)`) are still proof
 # position, so capturing them is correct.
-PROOF_HEAD_RE = re.compile(r":=\s*\(*\s*(MathFin\.[A-Za-z_][A-Za-z0-9_.']*)")
+PROOF_HEAD_RE = re.compile(r":=\s*\(*\s*(Econometrics\.[A-Za-z_][A-Za-z0-9_.']*)")
 
-# Any MathFin constant anywhere in a proof BODY. The head match above sees only
-# the first name, so a benchmark closed by a bundle — `⟨MathFin.a …, MathFin.b …⟩`,
+# Any Econometrics constant anywhere in a proof BODY. The head match above sees only
+# the first name, so a benchmark closed by a bundle — `⟨Econometrics.a …, Econometrics.b …⟩`,
 # or an `And.intro` spine — put every constant but the first outside the audit.
 # `mf-fixedincome-fra` (PR #166) hit exactly this: both its theorems escaped the
 # generated audit entirely, and the contributor hand-added them to the CURATED
 # AxiomAudit.lean, which is meant for headliners rather than routine entries.
-MATHFIN_NAME_RE = re.compile(r"(MathFin\.[A-Za-z_][A-Za-z0-9_.']*)")
+ECONOMETRICS_NAME_RE = re.compile(r"(Econometrics\.[A-Za-z_][A-Za-z0-9_.']*)")
 
 # Start of a declaration, to bound a proof body: everything from a decl's `:=`
 # up to the next decl is proof position; past that is the next statement.
@@ -99,7 +99,7 @@ def collect_proof_position_names() -> list[str]:
         code = theorem.get("code", {}).get("lean", "")
         names.update(PROOF_HEAD_RE.findall(code))
         for body in proof_bodies(code):
-            names.update(MATHFIN_NAME_RE.findall(body))
+            names.update(ECONOMETRICS_NAME_RE.findall(body))
     return sorted(names)
 
 
@@ -118,14 +118,14 @@ def generate() -> str:
     header = f"""/-
   GENERATED FILE — do not edit by hand.
 
-  Exhaustive axiom audit: every MathFin constant consumed in PROOF POSITION
+  Exhaustive axiom audit: every Econometrics constant consumed in PROOF POSITION
   by a benchmark snippet is #guard_msgs-pinned to its exact axiom set, so no
   benchmark-cited theorem can pick up `sorryAx` (a `sorry`) or a non-standard
   axiom without breaking `lake build`.
 
-  The curated, storied audit is MathFin/AxiomAudit.lean (headliners + dated
+  The curated, storied audit is Econometrics/AxiomAudit.lean (headliners + dated
   narrative); THIS file is its machine-written closure over the benchmark
-  corpus ({len(names)} constants). Scope: proof-position MathFin names only —
+  corpus ({len(names)} constants). Scope: proof-position Econometrics names only —
   statement-position defs are exercised by elaboration + the verification
   ledger, and library_wrapper entries cite upstream names.
 
@@ -133,13 +133,13 @@ def generate() -> str:
   Freshness:   tests/test_values.py::test_axiom_audit_gen_is_fresh
   (Excluded from CI kernel replay like AxiomAudit: whole-library closure.)
 -/
-import MathFin
+import Econometrics
 
-namespace MathFin.AxiomAuditGen
+namespace Econometrics.AxiomAuditGen
 
 """
     body = "\n".join(_guard_block(name) for name in names)
-    return header + body + "\nend MathFin.AxiomAuditGen\n"
+    return header + body + "\nend Econometrics.AxiomAuditGen\n"
 
 
 def main(argv: list[str]) -> int:

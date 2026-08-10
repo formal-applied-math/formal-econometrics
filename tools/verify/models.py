@@ -9,18 +9,12 @@ from typing import Any, Protocol, runtime_checkable
 
 
 class Domain(Enum):
-    """Mathematical domain classification for routing."""
-    MARKOV_CHAINS = "markov_chains"
-    ERGODIC_THEORY = "ergodic_theory"
-    CLT = "central_limit_theorem"
-    MARTINGALES = "martingales"
-    STOPPING_TIMES = "stopping_times"
-    BROWNIAN_MOTION = "brownian_motion"
-    MEASURE_THEORY = "measure_theory"
-    STOCHASTIC_CALCULUS = "stochastic_calculus"
-    SDES = "stochastic_differential_equations"
-    MATHEMATICAL_FINANCE = "mathematical_finance"
-    POISSON_PROCESSES = "poisson_processes"
+    """Mathematical domain classification for routing.
+
+    One value per benchmark file. The list is corpus data, not code — it lives
+    here only because the flagship's copy did; see docs/apparatus-divergence.md.
+    """
+    IDENTIFICATION = "identification"
 
 
 class Backend(Enum):

@@ -225,7 +225,7 @@ def build_doc(root: str) -> dict:
 
     proj = meta.get("project", {})
     project = {
-        "name": proj.get("name", "formal-mathfin"),
+        "name": proj.get("name", "formal-econometrics"),
         "authors": proj.get("authors", []),
         "license": proj.get("license", "Apache-2.0"),
     }
@@ -267,8 +267,7 @@ def build_doc(root: str) -> dict:
         "project": project,
         "sources": sources,
         "status": {
-            "scope": (f"{n} theorems across continuous-time stochastic processes and "
-                      f"mathematical finance, built on Mathlib + BrownianMotion; "
+            "scope": (f"{n} theorems in econometric identification, built on Mathlib; "
                       f"{ready} delivery-ready (full + library-wrapper)."),
             "sorry_count": 0,
             "sorry_in_definitions": 0,
@@ -280,37 +279,15 @@ def build_doc(root: str) -> dict:
                 {
                     "method": "interactive human authoring",
                     "models": ["Claude Code (authoring assistant)"],
-                    "framework": "Lean 4 + Mathlib + BrownianMotion; VS Code / lean-repl daemon",
+                    "framework": "Lean 4 + Mathlib; VS Code / Lean LSP",
                     "tool_setup": "lake build; AxiomAudit + verification-ledger + values-review gates",
-                    "prompting_notes": "author edits MathFin/<Section>/*.lean directly",
-                },
-                {
-                    "method": "machine autoformalization (two-stage; scout, not author)",
-                    "models": sorted(autoform_models) or ["labs-leanstral-1-5"],
-                    "framework": "mathfin-foundry: probe / vibe <-> lean-lsp-mcp",
-                    "tool_setup": (f"token-paced GitHub Actions pipeline; {drafter_shape} "
-                                   f"{specifies} the "
-                                   "statement, Leanstral formalizes + proves it. A cheap autop "
-                                   "tactic-probe may scout-close a goal Leanstral missed; those "
-                                   "open as DRAFT PRs (labeled scout-proof, attributed to the "
-                                   "tactic, refactored before merge, never silently merged). On a "
-                                   "Leanstral pass it opens a ready-for-review PR on formal-mathfin "
-                                   "that a human reviews (8-lens values panel) and merges"),
-                    "prompting_notes": autoform_note,
-                },
-                {
-                    "method": "own design, external source consulted (cited)",
-                    "models": [],
-                    "framework": ("Lean 4 + Mathlib, this library's conventions; an Isabelle/HOL "
-                                  "AFP entry consulted as a source for the classical result set"),
-                    "tool_setup": ("provenance.source == afp-actuarial-mathematics; per-file "
-                                   "citation header; cited with the author's permission"),
-                    "prompting_notes": afp_note,
+                    "prompting_notes": "author edits Econometrics/<Section>/*.lean directly",
                 },
             ],
-            "spend_usd": "0 (Mistral Labs beta)",
-            "notes": ("scout, not author: the pipeline opens the PR; a human reviews and merges, "
-                      "so no machine proof enters the library unreviewed"),
+            "spend_usd": "0",
+            "notes": ("no machine autoformalization is wired to this repo yet; when it is, "
+                      "the scout-not-author rule applies — the pipeline opens the PR, a human "
+                      "reviews and merges, so no machine proof enters the library unreviewed"),
         },
         "fidelity": {
             "divergences": (
@@ -328,7 +305,7 @@ def build_doc(root: str) -> dict:
             "notes": "the review is an upgrade engine (ranked backlog), not a pass/fail gate",
         },
         "alignment": {
-            "namespace": "MathFin",
+            "namespace": "Econometrics",
             "statements": alignment_statements,
         },
         "acknowledgements": meta.get("acknowledgements", ""),

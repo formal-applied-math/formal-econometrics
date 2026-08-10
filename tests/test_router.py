@@ -32,14 +32,11 @@ PROP_STRUCTURE_RE = re.compile(r"\bstructure\b[\s\S]*?:\s*Prop\s+where")
 # Prop-structure trips the test below, forcing a conscious choice between
 # "genuine definition → allowlist with justification" and "assumed conclusion
 # → reduced_core".
-DEFINITIONAL_FULL_ALLOWLIST = {
-    "bm-def-5.1.1",    # StandardBrownianMotion definition (Saporito Def 5.1.1)
-    "cv-poisson-def",  # PoissonProcess definition
-    # "pp-thm-3.3.5" was removed 2026-06-03: it is a THEOREM entry (marginal law)
-    # whose conclusion is a projected structure field, so it was demoted to
-    # reduced_core (see EXPECTED_REDUCED_CORE_THEOREMS) — definition entries keep
-    # the allowlist convention; theorem entries do not.
-}
+DEFINITIONAL_FULL_ALLOWLIST: set[str] = set(
+    # A `full` entry may not bundle its conclusion as an assumed Prop-structure
+    # field unless it genuinely DEFINES a stochastic object. Empty here: the
+    # identification corpus states theorems about objects Mathlib already has.
+)
 
 PLACEHOLDER_PATTERNS = (
     "example : true := trivial",
@@ -49,40 +46,24 @@ PLACEHOLDER_PATTERNS = (
     "formal placeholder",
 )
 
-EXPECTED_FULL_THEOREMS = {
-    "bm-def-5.1.1",
-    "cv-poisson-def",
-    "mc-def-1.1.1",
-    "mc-prop-1.2.3",
-    "mc-prop-1.4.13",
-    # 2026-06-05 Poisson-cluster + Itô-QV upgrade round: conclusions are now
-    # DERIVED (PoissonSuperposition / PoissonThinning / PoissonCounting /
-    # ItoProcessQV in Foundations/), not structure-field projections.
-    "pp-thm-3.3.5",
-    "pp-thm-3.3.9",
-    "pp-thm-3.3.10",
-    "sc-thm-7.4.5",
-}
+EXPECTED_FULL_THEOREMS: set[str] = set(
+    # Ratchet pins: entries that reached `full` and may never silently regress.
+    # Populated as the corpus earns them, one id per promotion.
+)
 
 # Deliberate audit pins: entries kept at exactly `reduced_core` so they can
 # neither silently regress to placeholder nor be re-promoted without a
 # genuine derivation. (mc-thm-1.1.2 left this list 2026-06-06: the
 # Ionescu-Tulcea path-measure derivation landed in
 # Foundations/MarkovPathMeasure.lean and the entry is `full` now.)
-EXPECTED_REDUCED_CORE_THEOREMS = {
-    # pp-prop-3.3.6 stays reduced_core HONESTLY: the first interarrival's
-    # exponential law + memorylessness are derived (PoissonInterarrival), but
-    # the textbook's whole-sequence iid claim needs the strong Markov property.
-    "pp-prop-3.3.6",
-    # (mf-kelly-n-periods-linearity was demoted here 2026-06-06 by the
-    # definitional-rfl tripwire and re-promoted the same day: the n-period
-    # iid model is now real — Measure.pi of the two-point return law +
-    # linearity of expectation in Performance/Kelly.lean.)
-}
+EXPECTED_REDUCED_CORE_THEOREMS: set[str] = set(
+    # Deliberate pins at exactly `reduced_core`: neither silently demoted to
+    # placeholder nor re-promoted without a genuine derivation.
+)
 
-EXPECTED_NON_PLACEHOLDER_THEOREMS = {
-    "bm-cor-5.3.4",
-}
+EXPECTED_NON_PLACEHOLDER_THEOREMS: set[str] = set(
+    # Entries that left `placeholder` and may not return to it.
+)
 
 
 def _iter_theorems():
@@ -103,8 +84,8 @@ MODULE_PRIVATE_ALLOWLIST: set = set()
 MODULE_HEADER_RE = re.compile(r"^module\s*$", re.MULTILINE)
 
 
-def test_mathfin_module_files_expose_public_section() -> None:
-    for path in Path("MathFin").rglob("*.lean"):
+def test_econometrics_module_files_expose_public_section() -> None:
+    for path in Path("Econometrics").rglob("*.lean"):
         if str(path) in MODULE_PRIVATE_ALLOWLIST:
             continue
         text = path.read_text()
@@ -121,7 +102,7 @@ def test_mathfin_module_files_expose_public_section() -> None:
 def test_tooling_packages_not_imported_by_library() -> None:
     """Soundness boundary for ``ledger.PIN_EXCLUDED_PACKAGES``: tooling-only
     Lake deps (LeanArchitect's ``Architect``) may be imported ONLY by the
-    blueprint leaf modules (``MathFin/Blueprint*``), which no benchmark entry
+    blueprint leaf modules (``Econometrics/Blueprint*``), which no benchmark entry
     can reach. If this import ever spreads into a proof module, the ledger's
     pin-hash exclusion becomes unsound — the fix is to remove the package
     from PIN_EXCLUDED_PACKAGES (restaling the corpus, as it then must)."""
@@ -130,8 +111,8 @@ def test_tooling_packages_not_imported_by_library() -> None:
         r"(Architect|Hammer|Duper|Auto|PremiseSelection)\b",
         re.MULTILINE,
     )
-    allowed = {Path("MathFin/Blueprint.lean"), Path("MathFin/Blueprint/Export.lean")}
-    for path in Path("MathFin").rglob("*.lean"):
+    allowed = {Path("Econometrics/Blueprint.lean"), Path("Econometrics/Blueprint/Export.lean")}
+    for path in Path("Econometrics").rglob("*.lean"):
         if path in allowed:
             continue
         m = tooling_import_re.search(path.read_text())
@@ -141,7 +122,7 @@ def test_tooling_packages_not_imported_by_library() -> None:
                 "library/benchmark code must never depend on the scout "
                 "toolchain (see ledger.PIN_EXCLUDED_PACKAGES; hammer pilot "
                 "files live under tests/, Architect only in "
-                "MathFin/Blueprint*.lean)."
+                "Econometrics/Blueprint*.lean)."
             )
 
 

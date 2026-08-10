@@ -2,8 +2,8 @@
 LIBRARY sources and the generated audit artifacts (complementing
 ``test_router.py``'s benchmark-level checks).
 
-1. ``test_mathfin_sources_free_of_forbidden_text`` — scout/search/interactive
-   tactics and trust-extending commands never land in committed ``MathFin/``
+1. ``test_econometrics_sources_free_of_forbidden_text`` — scout/search/interactive
+   tactics and trust-extending commands never land in committed ``Econometrics/``
    sources: scout-not-author, offline-loop, and kernel-only trust, enforced
    textually (comments are stripped first, so prose may mention the words).
 2. ``test_full_entries_are_not_definitional_rfl`` — a ``full`` entry's cited
@@ -11,11 +11,11 @@ LIBRARY sources and the generated audit artifacts (complementing
    ``rfl`` / ``unfold; rfl``: that is the ``reduced_core`` pattern in
    disguise. This is the entry-time version of the 2026-05-29 / 2026-06-03
    audit demotions (newton-raphson, pp-thm-3.3.5, mc-thm-1.1.2).
-3. ``test_blueprint_spine_is_audited`` — every MathFin theorem on the curated
-   blueprint spine is axiom-guarded in ``MathFin/AxiomAudit.lean``: the spine
+3. ``test_blueprint_spine_is_audited`` — every Econometrics theorem on the curated
+   blueprint spine is axiom-guarded in ``Econometrics/AxiomAudit.lean``: the spine
    is curated prose + a generated dependency graph, the audit must be its
    superset (headliners are, at minimum, axiom-pinned).
-4. ``test_axiom_audit_gen_is_fresh`` — ``MathFin/AxiomAuditGen.lean`` is
+4. ``test_axiom_audit_gen_is_fresh`` — ``Econometrics/AxiomAuditGen.lean`` is
    byte-identical to the generator's output (generated artifacts are never
    hand-edited; regeneration is a no-op).
 """
@@ -26,8 +26,8 @@ from pathlib import Path
 from tools.verify.axiom_audit_gen import GEN_PATH, PROOF_HEAD_RE, generate
 from tools.verify.corpus import iter_entries
 
-AUDIT_PATH = Path("MathFin/AxiomAudit.lean")
-BLUEPRINT_PATH = Path("MathFin/Blueprint.lean")
+AUDIT_PATH = Path("Econometrics/AxiomAudit.lean")
+BLUEPRINT_PATH = Path("Econometrics/Blueprint.lean")
 
 
 # --------------------------------------------------------------------------
@@ -103,9 +103,9 @@ def _strip_comments(src: str) -> str:
     return "".join(out)
 
 
-def test_mathfin_sources_free_of_forbidden_text() -> None:
+def test_econometrics_sources_free_of_forbidden_text() -> None:
     failures = []
-    for path in sorted(Path("MathFin").rglob("*.lean")):
+    for path in sorted(Path("Econometrics").rglob("*.lean")):
         stripped = _strip_comments(path.read_text())
         for pattern, why in FORBIDDEN_PATTERNS:
             for m in pattern.finditer(stripped):
@@ -167,9 +167,9 @@ def _decl_tails(text: str):
         yield name, tail
 
 
-def _mathfin_decl_tail_index() -> dict:
+def _econometrics_decl_tail_index() -> dict:
     index: dict = {}
-    for path in sorted(Path("MathFin").rglob("*.lean")):
+    for path in sorted(Path("Econometrics").rglob("*.lean")):
         text = _strip_comments(path.read_text())
         for name, tail in _decl_tails(text):
             index.setdefault(name.split(".")[-1], []).append((str(path), tail))
@@ -177,7 +177,7 @@ def _mathfin_decl_tail_index() -> dict:
 
 
 def test_full_entries_are_not_definitional_rfl() -> None:
-    index = _mathfin_decl_tail_index()
+    index = _econometrics_decl_tail_index()
     failures = []
     for path, theorem in iter_entries():
         if theorem.get("metadata", {}).get("formalization_status") != "full":
@@ -258,15 +258,22 @@ def _audited_names() -> set:
 
 
 def test_blueprint_spine_is_audited() -> None:
+    if not BLUEPRINT_PATH.exists():
+        # Phase 0 has no blueprint spine: LeanArchitect is deliberately absent
+        # from `lakefile.lean` while the corpus is one entry. The gate is
+        # RETAINED rather than deleted — it re-arms the moment
+        # Econometrics/Blueprint.lean lands. Recorded in
+        # docs/apparatus-divergence.md so the omission is evidence, not drift.
+        return
     audited = _audited_names()
     missing = [
         name for name in _blueprint_tagged_names()
-        if name.startswith("MathFin.") and name not in audited
+        if name.startswith("Econometrics.") and name not in audited
     ]
     assert not missing, (
         "blueprint spine nodes missing from the curated axiom audit "
         "(every headliner must be axiom-pinned — add a #guard_msgs block to "
-        "MathFin/AxiomAudit.lean):\n  " + "\n  ".join(missing)
+        "Econometrics/AxiomAudit.lean):\n  " + "\n  ".join(missing)
     )
 
 

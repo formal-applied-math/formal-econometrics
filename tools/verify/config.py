@@ -13,11 +13,11 @@ class LeanConfig:
     # Path to the in-repo Lake project that the Lean backend elaborates
     # against. The project's own ``lakefile.lean`` + ``lake-manifest.json`` +
     # ``lean-toolchain`` are authoritative for Mathlib/Lean versions and
-    # transitive deps; benchmark snippets just `import MathFin.X` and
+    # transitive deps; benchmark snippets just `import Econometrics.X` and
     # reference compiled lemmas by name.
     #
     # Path is relative to the CWD when the verifier runs (in Docker that's
-    # ``/app``, which is the repo root with ``lakefile.lean`` + ``MathFin/``
+    # ``/app``, which is the repo root with ``lakefile.lean`` + ``Econometrics/``
     # directly under it).
     local_project: str = "."
 
@@ -38,45 +38,45 @@ class OrchestratorConfig:
 
 
 @dataclass
-class MathFinConfig:
+class EconometricsConfig:
     lean: LeanConfig = field(default_factory=LeanConfig)
     orchestrator: OrchestratorConfig = field(default_factory=OrchestratorConfig)
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> MathFinConfig:
+    def from_dict(cls, d: dict[str, Any]) -> EconometricsConfig:
         return cls(
             lean=LeanConfig.from_dict(d.get("lean", {})),
             orchestrator=OrchestratorConfig.from_dict(d.get("orchestrator", {})),
         )
 
 
-def load_config(path: str | Path | None = None) -> MathFinConfig:
+def load_config(path: str | Path | None = None) -> EconometricsConfig:
     """Load configuration from a TOML file.
 
     Falls back to defaults if no path is provided or file doesn't exist.
     """
     if path is None:
-        for candidate in ["mathfin.toml", "pyproject.toml"]:
+        for candidate in ["econometrics.toml", "pyproject.toml"]:
             p = Path(candidate)
             if p.exists():
                 path = p
                 break
 
     if path is None:
-        return MathFinConfig()
+        return EconometricsConfig()
 
     path = Path(path)
     if not path.exists():
-        return MathFinConfig()
+        return EconometricsConfig()
 
     with open(path, "rb") as f:
         raw = tomllib.load(f)
 
-    if "tool" in raw and "mathfin" in raw["tool"]:
-        data = raw["tool"]["mathfin"]
-    elif "mathfin" in raw:
-        data = raw["mathfin"]
+    if "tool" in raw and "econometrics" in raw["tool"]:
+        data = raw["tool"]["econometrics"]
+    elif "econometrics" in raw:
+        data = raw["econometrics"]
     else:
         data = raw
 
-    return MathFinConfig.from_dict(data)
+    return EconometricsConfig.from_dict(data)

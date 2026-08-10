@@ -2,14 +2,14 @@
 
 Presence-only: every benchmark entry must have a ledger row, and entry ids
 must be globally unique (the ledger is keyed by id). Freshness — whether each
-row's input hash still matches the entry's code + transitive MathFin imports +
+row's input hash still matches the entry's code + transitive Econometrics imports +
 toolchain pins — is deliberately NOT asserted here: a library edit legitimately
 stales entries until re-verification, and the test suite must stay green in
 that window. Freshness is checked by
 
     python3 -m tools.verify.ledger status   # exit 1 when stale/missing
 
-run after any MathFin/ or benchmark edit (re-verify with `verify --stale`).
+run after any Econometrics/ or benchmark edit (re-verify with `verify --stale`).
 """
 
 import json

@@ -23,8 +23,8 @@ failure mode is therefore "one entry re-verifies", not "the ledger lies".
 
 Install (per clone, since git config is not versioned)::
 
-    git config merge.mathfin-ledger.name "semantic merge for verification_ledger.json"
-    git config merge.mathfin-ledger.driver "python3 tools/verify/ledger_merge.py %O %A %B %L %P"
+    git config merge.econometrics-ledger.name "semantic merge for verification_ledger.json"
+    git config merge.econometrics-ledger.driver "python3 tools/verify/ledger_merge.py %O %A %B %L %P"
 
 ``.gitattributes`` already routes the file here. Without the config git falls
 back to the default text merge — which is why ``tests/test_ledger.py`` remains

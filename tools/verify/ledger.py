@@ -1,7 +1,7 @@
 """Incremental verification ledger for benchmark snippets.
 
 Each benchmark entry's validity depends on exactly three inputs: its own
-``code.lean`` snippet, the source of the MathFin modules it (transitively)
+``code.lean`` snippet, the source of the Econometrics modules it (transitively)
 imports, and the toolchain pins (``lean-toolchain`` + ``lake-manifest.json``,
 which pin Mathlib and BrownianMotion). This tool hashes those inputs per entry
 and records, in ``verification_ledger.json`` at the repo root, the hash under
@@ -43,7 +43,7 @@ BENCH_DIR = REPO / "benchmarks"
 PIN_FILES = ("lean-toolchain", "lake-manifest.json")
 
 # Tooling-only Lake packages, OUTSIDE every benchmark import closure: no
-# MathFin module reachable from a benchmark snippet imports them (enforced by
+# Econometrics module reachable from a benchmark snippet imports them (enforced by
 # ``test_router.test_tooling_packages_not_imported_by_library``), and a
 # package on LEAN_PATH that an env never imports cannot affect elaboration
 # (Lean environments are import-closed). Their manifest entries are therefore
@@ -52,7 +52,7 @@ PIN_FILES = ("lean-toolchain", "lake-manifest.json")
 # restale everything, as they must.
 # `Hammer`/`Duper`/`auto`/`premise-selection` are the LeanHammer cluster:
 # authoring-time scouts (CLAUDE.md values gate), imported only by pilot files
-# under tests/, never by MathFin modules or benchmark snippets.
+# under tests/, never by Econometrics modules or benchmark snippets.
 PIN_EXCLUDED_PACKAGES = frozenset({
     "LeanArchitect", "Hammer", "Duper", "auto", "«premise-selection»",
 })
@@ -71,7 +71,7 @@ def _pin_bytes(path: Path) -> bytes:
     return json.dumps(manifest, sort_keys=True).encode()
 
 MATHFIN_IMPORT_RE = re.compile(
-    r"^\s*(?:public\s+)?import(?:\s+all)?\s+(MathFin(?:\.[A-Za-z0-9_]+)*)\s*$",
+    r"^\s*(?:public\s+)?import(?:\s+all)?\s+(Econometrics(?:\.[A-Za-z0-9_]+)*)\s*$",
     re.MULTILINE,
 )
 
@@ -113,7 +113,7 @@ class InputHasher:
         return self._file_imports[path]
 
     def closure(self, code: str) -> list[tuple[str, str]]:
-        """Transitive MathFin modules imported by a snippet: (module, sha)."""
+        """Transitive Econometrics modules imported by a snippet: (module, sha)."""
         seen: dict[str, str] = {}
         frontier = MATHFIN_IMPORT_RE.findall(code)
         missing: list[str] = []
@@ -130,7 +130,7 @@ class InputHasher:
             frontier.extend(self._imports_of(path))
         if missing:
             raise FileNotFoundError(
-                f"snippet imports unknown MathFin modules: {missing}"
+                f"snippet imports unknown Econometrics modules: {missing}"
             )
         return sorted(seen.items())
 
@@ -200,11 +200,11 @@ def daemon_check(code: str, timeout: float) -> dict:
 
 
 EXEC_CONTAINER = os.environ.get("LEDGER_EXEC_CONTAINER", "docker-lean-repl-1")
-# Compose bind-mounts specific subtrees (MathFin/, tools/, ...), NOT the repo
-# root — so the temp file must live inside one of them. MathFin/ is mounted RW
+# Compose bind-mounts specific subtrees (Econometrics/, tools/, ...), NOT the repo
+# root — so the temp file must live inside one of them. Econometrics/ is mounted RW
 # (same pattern as scripts/bench-check.sh); the dotfile name keeps it out of
 # the lake glob and git.
-EXEC_TMP = "MathFin/.ledger-exec-check.lean"
+EXEC_TMP = "Econometrics/.ledger-exec-check.lean"
 
 
 def exec_check(code: str, timeout: float) -> dict:
@@ -386,7 +386,7 @@ def cmd_rebase_pins(args) -> int:
     Sound by construction: an entry is rewritten only if its stored hash
     EQUALS the hash recomputed under the baseline rev's pin files (old
     raw-bytes scheme) with the CURRENT snippet + module closure — i.e. its
-    code and every transitive MathFin module are byte-identical to the
+    code and every transitive Econometrics module are byte-identical to the
     verified state, and only the pin segment moved. Anything else is left
     untouched (genuinely stale ⇒ still needs `verify`). Use when the pin
     *scheme* changes or a PIN_EXCLUDED_PACKAGES dep is added — never as a

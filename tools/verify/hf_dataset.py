@@ -2,7 +2,7 @@
 
 Vendored (and made count-honest) from the original one-off
 ``build_dataset.py`` that published
-https://huggingface.co/datasets/raphaelrrcoelho/formal-mathfin-theorems —
+https://huggingface.co/datasets/raphaelrrcoelho/formal-econometrics-theorems —
 this repo is the single source of truth; CI (`hf-publish.yml`) rebuilds and
 uploads on every push that touches ``benchmarks/``. The dataset card's
 counts are COMPUTED here at build time (the originally-published card had
@@ -11,7 +11,7 @@ hand-maintained).
 
 Emits into ``--out DIR``:
 
-* ``formal-mathfin-theorems.jsonl`` — one row per theorem: id, name, domain,
+* ``formal-econometrics-theorems.jsonl`` — one row per theorem: id, name, domain,
   formalization_status, description, formalization_scope, lean_code,
   source_file.
 
@@ -38,7 +38,7 @@ from pathlib import Path
 
 from tools.verify.corpus import iter_entries
 
-DATASET_FILE = "formal-mathfin-theorems.jsonl"
+DATASET_FILE = "formal-econometrics-theorems.jsonl"
 
 
 def build_rows() -> list[dict]:
@@ -101,7 +101,7 @@ BrownianMotion package. Each entry includes a theorem's formal statement,
 its proof, subject area, and a "faithfulness tier" indicating alignment
 between the mathematical and formal claims.
 
-Sourced from the [`formal-mathfin`](https://github.com/raphaelrrcoelho/formal-mathfin)
+Sourced from the [`formal-econometrics`](https://github.com/raphaelrrcoelho/formal-econometrics)
 library, this collection serves as training and evaluation material for
 autoformalization and automated theorem proving focused on quantitative
 finance — a domain underrepresented in existing mathematical benchmarks.
