@@ -1,0 +1,14 @@
+{
+  "_meta": {
+    "description": "benchmark verification ledger; see tools/verify/ledger.py"
+  },
+  "entries": {
+    "did-att-1": {
+      "benchmark_file": "identification.json",
+      "date": "2026-08-10",
+      "elapsed_s": 11.3,
+      "input_hash": "7141bf6e7d4afbdad414e68040ba6eea59e1f43a527c4607b9264a7a091ebe2d",
+      "verified_at_commit": "b397136"
+    }
+  }
+}
